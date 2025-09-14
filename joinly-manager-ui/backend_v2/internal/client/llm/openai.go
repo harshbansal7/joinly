@@ -20,8 +20,13 @@ func NewOpenAIProvider(model string) *OpenAIProvider {
 	return &OpenAIProvider{model: model}
 }
 
-// Call makes a request to the OpenAI API
+// Call makes a request to the OpenAI API (backward compatibility)
 func (p *OpenAIProvider) Call(prompt string) (string, error) {
+	return p.CallWithSchema(prompt, nil)
+}
+
+// CallWithSchema makes a request to the OpenAI API with optional structured response schema
+func (p *OpenAIProvider) CallWithSchema(prompt string, schema *ResponseSchema) (string, error) {
 	url := "https://api.openai.com/v1/chat/completions"
 
 	payload := map[string]interface{}{
@@ -29,8 +34,19 @@ func (p *OpenAIProvider) Call(prompt string) (string, error) {
 		"messages": []map[string]string{
 			{"role": "user", "content": prompt},
 		},
-		"max_tokens":  150,
-		"temperature": 0.7,
+		"max_tokens":  2000, // Increased for analysis tasks
+		"temperature": 0.3,  // Lower temperature for more consistent analysis
+	}
+
+	// Add structured output format if schema is provided
+	if schema != nil {
+		payload["response_format"] = map[string]interface{}{
+			"type": "json_schema",
+			"json_schema": map[string]interface{}{
+				"name":   "structured_response",
+				"schema": schema,
+			},
+		}
 	}
 
 	return p.makeHTTPCall(url, payload, map[string]string{
@@ -100,4 +116,3 @@ func (p *OpenAIProvider) extractResponseText(body []byte) (string, error) {
 
 	return "", fmt.Errorf("could not extract response text from OpenAI API response")
 }
-

@@ -1,0 +1,25 @@
+{
+  "meeting_id": "test-agent",
+  "meeting_url": "https://meet.google.com/test",
+  "start_time": "2025-09-14T23:22:31.976638+05:30",
+  "last_updated": "2025-09-14T23:22:31.978114+05:30",
+  "transcript": [
+    {
+      "timestamp": "2025-09-14T23:22:31+05:30",
+      "speaker": "Alice",
+      "text": "Hello everyone, let's discuss the project timeline.",
+      "is_agent": false
+    }
+  ],
+  "summary": "",
+  "key_points": [],
+  "action_items": [],
+  "topics": [],
+  "participants": [
+    "Alice"
+  ],
+  "duration_minutes": 2.597166666666667e-7,
+  "word_count": 7,
+  "sentiment": "",
+  "keywords": null
+}

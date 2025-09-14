@@ -43,6 +43,14 @@ const (
 	STTProviderDeepgram STTProvider = "deepgram"
 )
 
+// ConversationMode represents the mode of conversation for an agent
+type ConversationMode string
+
+const (
+	ConversationModeConversational ConversationMode = "conversational" // Default: responds and speaks
+	ConversationModeAnalyst        ConversationMode = "analyst"        // Analyst: transcribes and analyzes without speaking
+)
+
 // Note: TranscriptionController removed - transcription should be clean, context is for response generation
 
 // ConversationEntry represents a single entry in conversation history
@@ -54,16 +62,18 @@ type ConversationEntry struct {
 
 // AgentConfig represents the configuration for an agent
 type AgentConfig struct {
-	Name         string      `json:"name" yaml:"name"`
-	MeetingURL   string      `json:"meeting_url" yaml:"meeting_url"`
-	LLMProvider  LLMProvider `json:"llm_provider" yaml:"llm_provider"`
-	LLMModel     string      `json:"llm_model" yaml:"llm_model"`
-	TTSProvider  TTSProvider `json:"tts_provider" yaml:"tts_provider"`
-	STTProvider  STTProvider `json:"stt_provider" yaml:"stt_provider"`
-	Language     string      `json:"language" yaml:"language"`
-	CustomPrompt *string     `json:"custom_prompt,omitempty" yaml:"custom_prompt,omitempty"` // Custom prompt for LLM
-	NameTrigger  bool        `json:"name_trigger" yaml:"name_trigger"`
-	AutoJoin     bool        `json:"auto_join" yaml:"auto_join"`
+	Name              string           `json:"name" yaml:"name"`
+	MeetingURL        string           `json:"meeting_url" yaml:"meeting_url"`
+	LLMProvider       LLMProvider      `json:"llm_provider" yaml:"llm_provider"`
+	LLMModel          string           `json:"llm_model" yaml:"llm_model"`
+	TTSProvider       TTSProvider      `json:"tts_provider" yaml:"tts_provider"`
+	STTProvider       STTProvider      `json:"stt_provider" yaml:"stt_provider"`
+	Language          string           `json:"language" yaml:"language"`
+	CustomPrompt      *string          `json:"custom_prompt,omitempty" yaml:"custom_prompt,omitempty"`           // Custom prompt for conversational agents
+	PersonalityPrompt *string          `json:"personality_prompt,omitempty" yaml:"personality_prompt,omitempty"` // Personality description for analyst agents
+	NameTrigger       bool             `json:"name_trigger" yaml:"name_trigger"`
+	AutoJoin          bool             `json:"auto_join" yaml:"auto_join"`
+	ConversationMode  ConversationMode `json:"conversation_mode" yaml:"conversation_mode"` // Mode of conversation: conversational or analyst
 
 	// Transcription Controller Parameters
 	UtteranceTailSeconds *float64 `json:"utterance_tail_seconds,omitempty" yaml:"utterance_tail_seconds,omitempty"`

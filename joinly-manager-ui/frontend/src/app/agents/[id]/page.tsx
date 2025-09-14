@@ -27,6 +27,11 @@ import {
   Loader2,
   Copy,
   ExternalLink,
+  Eye,
+  FileText,
+  Users,
+  Target,
+  AlertTriangle,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -36,6 +41,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Layout } from '@/components/layout/layout';
+import type { AnalysisData } from '@/lib/api';
 
 export default function AgentDetailsPage() {
   const params = useParams();
@@ -48,6 +54,11 @@ export default function AgentDetailsPage() {
   const [logs, setLogs] = useState<{ timestamp: string; level: string; message: string }[]>([]);
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
   const [logFilter, setLogFilter] = useState<string>('all');
+
+  // Analysis state for analyst mode agents
+  const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
+  const [formattedAnalysis, setFormattedAnalysis] = useState<string>('');
 
   const agent = agents.find(a => a.id === agentId);
 
@@ -85,6 +96,40 @@ export default function AgentDetailsPage() {
     }
   }, [agentId]);
 
+  const loadAnalysis = useCallback(async () => {
+    if (agent?.config.conversation_mode !== 'analyst') return;
+
+    setIsLoadingAnalysis(true);
+    try {
+      const response = await agentsApi.getAnalysis(agentId);
+      setAnalysis(response.data);
+
+      // Also load formatted analysis
+      const formattedResponse = await agentsApi.getFormattedAnalysis(agentId);
+      setFormattedAnalysis(formattedResponse.data);
+    } catch (error) {
+      console.error('Failed to load analysis:', error);
+      setAnalysis(null);
+      setFormattedAnalysis('');
+    } finally {
+      setIsLoadingAnalysis(false);
+    }
+  }, [agentId, agent]);
+
+  const downloadAnalysis = () => {
+    if (!formattedAnalysis) return;
+
+    const blob = new Blob([formattedAnalysis], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `meeting-analysis-${agentId}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const formatLogEntry = (log: { timestamp: string; level: string; message: string }): string => {
     const timestamp = new Date(log.timestamp).toLocaleString();
     return `[${timestamp}] ${log.level.toUpperCase()}: ${log.message}`;
@@ -92,7 +137,10 @@ export default function AgentDetailsPage() {
 
   useEffect(() => {
     loadLogs();
-  }, [loadLogs]);
+    if (agent?.config.conversation_mode === 'analyst') {
+      loadAnalysis();
+    }
+  }, [loadLogs, loadAnalysis, agent]);
 
   // Sync logs from agent state (updated via session WebSocket)
   useEffect(() => {
@@ -552,9 +600,9 @@ export default function AgentDetailsPage() {
           </CardContent>
         </Card>
 
-        {/* Logs and Status */}
-        <Tabs defaultValue="logs" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        {/* Logs, Status, and Analysis */}
+        <Tabs defaultValue={agent.config.conversation_mode === 'analyst' ? 'analysis' : 'logs'} className="w-full">
+          <TabsList className={`grid w-full ${agent.config.conversation_mode === 'analyst' ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Logs
@@ -563,6 +611,12 @@ export default function AgentDetailsPage() {
               <Activity className="h-4 w-4" />
               Status
             </TabsTrigger>
+            {agent.config.conversation_mode === 'analyst' && (
+              <TabsTrigger value="analysis" className="flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                Analysis
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="logs" className="space-y-4">
@@ -824,6 +878,265 @@ export default function AgentDetailsPage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {agent.config.conversation_mode === 'analyst' && (
+            <TabsContent value="analysis" className="space-y-6">
+              {/* Analysis Overview */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Eye className="h-5 w-5" />
+                        Meeting Analysis
+                      </CardTitle>
+                      <CardDescription>
+                        Comprehensive meeting insights and structured notes
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={loadAnalysis}
+                        disabled={isLoadingAnalysis}
+                      >
+                        <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingAnalysis ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={downloadAnalysis}
+                        disabled={!formattedAnalysis || isLoadingAnalysis}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingAnalysis ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                      <span>Loading analysis...</span>
+                    </div>
+                  ) : analysis ? (
+                    <div className="space-y-6">
+                      {/* Analysis Summary Cards */}
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-5 w-5 text-blue-600" />
+                            <div>
+                              <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Duration</p>
+                              <p className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                                {Math.floor((analysis.duration_minutes || 0) / 60)}h {Math.floor((analysis.duration_minutes || 0) % 60)}m
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-5 w-5 text-green-600" />
+                            <div>
+                              <p className="text-sm font-medium text-green-900 dark:text-green-100">Participants</p>
+                              <p className="text-lg font-bold text-green-900 dark:text-green-100">
+                                {analysis.participants?.length || 0}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-purple-600" />
+                            <div>
+                              <p className="text-sm font-medium text-purple-900 dark:text-purple-100">Word Count</p>
+                              <p className="text-lg font-bold text-purple-900 dark:text-purple-100">
+                                {analysis.word_count || 0}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+                          <div className="flex items-center gap-2">
+                            <Target className="h-5 w-5 text-orange-600" />
+                            <div>
+                              <p className="text-sm font-medium text-orange-900 dark:text-orange-100">Action Items</p>
+                              <p className="text-lg font-bold text-orange-900 dark:text-orange-100">
+                                {analysis.action_items?.length || 0}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Analysis Content */}
+                      <div className="space-y-6">
+                        {/* Summary */}
+                        {analysis.summary && (
+                          <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                              <FileText className="h-5 w-5" />
+                              Meeting Summary
+                            </h3>
+                            <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                              {analysis.summary}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Key Points */}
+                        {analysis.key_points && analysis.key_points.length > 0 && (
+                          <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                              <CheckCircle className="h-5 w-5" />
+                              Key Points
+                            </h3>
+                            <ul className="space-y-2">
+                              {analysis.key_points.map((point: string, index: number) => (
+                                <li key={index} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
+                                  <span className="text-blue-500 mt-1">•</span>
+                                  <span>{point}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Action Items */}
+                        {analysis.action_items && analysis.action_items.length > 0 && (
+                          <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                              <Target className="h-5 w-5" />
+                              Action Items
+                            </h3>
+                            <div className="space-y-3">
+                              {analysis.action_items.map((item, index: number) => (
+                                <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900/50">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <span className="font-medium text-gray-900 dark:text-white">{item.description}</span>
+                                        <Badge
+                                          className={`${
+                                            item.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                                            item.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
+                                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                          }`}
+                                        >
+                                          {item.priority || 'medium'}
+                                        </Badge>
+                                        <Badge
+                                          variant="outline"
+                                          className={`${
+                                            item.status === 'completed' ? 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-300' :
+                                            item.status === 'in_progress' ? 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-300' :
+                                            'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-900 dark:text-gray-300'
+                                          }`}
+                                        >
+                                          {item.status || 'pending'}
+                                        </Badge>
+                                      </div>
+                                      {item.assignee && (
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                                          <span className="font-medium">Assignee:</span> {item.assignee}
+                                        </p>
+                                      )}
+                                      {item.due_date && (
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                          <span className="font-medium">Due:</span> {new Date(item.due_date).toLocaleDateString()}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Sentiment */}
+                        {analysis.sentiment && (
+                          <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                              <AlertTriangle className="h-5 w-5" />
+                              Meeting Sentiment
+                            </h3>
+                            <div className="flex items-center gap-3">
+                              <Badge
+                                className={`${
+                                  analysis.sentiment === 'positive' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                                  analysis.sentiment === 'negative' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                                  analysis.sentiment === 'mixed' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
+                                  'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+                                }`}
+                              >
+                                {analysis.sentiment}
+                              </Badge>
+                              {analysis.keywords && analysis.keywords.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {analysis.keywords.slice(0, 5).map((keyword: string, index: number) => (
+                                    <Badge key={index} variant="outline" className="text-xs">
+                                      {keyword}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Topics */}
+                        {analysis.topics && analysis.topics.length > 0 && (
+                          <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                              <Users className="h-5 w-5" />
+                              Discussion Topics
+                            </h3>
+                            <div className="space-y-3">
+                              {analysis.topics.map((topic, index: number) => (
+                                <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <h4 className="font-medium text-gray-900 dark:text-white mb-2">{topic.topic}</h4>
+                                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{topic.summary}</p>
+                                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
+                                        <span>{topic.duration} min</span>
+                                        {topic.participants && (
+                                          <span>{topic.participants.join(', ')}</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Analysis Available</h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        Analysis will be generated once the agent starts transcribing the meeting.
+                      </p>
+                      <Button onClick={loadAnalysis} disabled={isLoadingAnalysis}>
+                        <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingAnalysis ? 'animate-spin' : ''}`} />
+                        Check for Analysis
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </Layout>

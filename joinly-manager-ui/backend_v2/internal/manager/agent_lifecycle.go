@@ -101,6 +101,7 @@ func (m *AgentManager) DeleteAgent(agentID string) error {
 	// Clean up
 	delete(m.agents, agentID)
 	delete(m.clients, agentID)
+	delete(m.analysts, agentID) // Clean up analyst agent if exists
 	delete(m.logBuffers, agentID)
 
 	logrus.Infof("Deleted agent %s", agentID)
@@ -130,6 +131,13 @@ func (m *AgentManager) StartAgent(agentID string) error {
 
 	// Create client
 	joinlyClient := client.NewJoinlyClient(agentID, agent.Config, m.config.Joinly.DefaultURL)
+
+	// Create analyst agent if in analyst mode
+	if agent.Config.ConversationMode == models.ConversationModeAnalyst {
+		analystAgent := client.NewAnalystAgent(agentID, agent.Config, joinlyClient)
+		m.analysts[agentID] = analystAgent
+		m.addLogEntry(agentID, "info", "Analyst agent created for meeting analysis")
+	}
 
 	// Set up callbacks
 	// Remove the status change callback - manager will control status directly
@@ -221,12 +229,6 @@ func (m *AgentManager) StopAgent(agentID string) error {
 	defer m.mu.Unlock()
 
 	err := m.stopAgent(agentID)
-	if err == nil {
-		// Update status to stopped after releasing lock
-		defer func() {
-			m.updateAgentStatus(agentID, models.AgentStatusStopped)
-		}()
-	}
 	return err
 }
 
@@ -243,36 +245,31 @@ func (m *AgentManager) stopAgent(agentID string) error {
 
 	logrus.Infof("Stopping agent %s", agentID)
 
-	// Update status first
+	// Update status to stopping
 	agent.Status = models.AgentStatusStopping
 	now := time.Now()
 	agent.StoppedAt = &now
+	m.updateAgentStatusUnsafe(agentID, models.AgentStatusStopping)
 
-	// Cancel the agent's context in a separate goroutine to avoid deadlock
+	// Cancel the agent's context (blocking call to avoid race conditions)
 	if agentCancel, exists := m.agentContexts[agentID]; exists {
-		go func() {
-			logrus.Debugf("Cancelling context for agent %s", agentID)
-			agentCancel()
-		}()
+		logrus.Debugf("Cancelling context for agent %s", agentID)
+		agentCancel()
 		delete(m.agentContexts, agentID)
 	}
 
-	// Stop client in a separate goroutine to avoid blocking
+	// Stop client synchronously to ensure proper cleanup before marking as stopped
 	if client := m.clients[agentID]; client != nil {
-		go func() {
-			logrus.Debugf("Stopping client for agent %s", agentID)
-			if err := client.Stop(); err != nil {
-				logrus.Errorf("Failed to stop client %s: %v", agentID, err)
-			}
-		}()
+		logrus.Debugf("Stopping client for agent %s", agentID)
+		if err := client.Stop(); err != nil {
+			logrus.Errorf("Failed to stop client %s: %v", agentID, err)
+		}
 		delete(m.clients, agentID)
 	}
 
-	// Set final stopped status while holding lock to avoid deadlock
-	if agent, exists := m.agents[agentID]; exists {
-		agent.Status = models.AgentStatusStopped
-	}
-	// Broadcast will happen after function returns and lock is released
+	// Update status to stopped while holding lock
+	agent.Status = models.AgentStatusStopped
+	m.updateAgentStatusUnsafe(agentID, models.AgentStatusStopped)
 
 	logrus.Infof("Agent %s stopped successfully", agentID)
 	return nil

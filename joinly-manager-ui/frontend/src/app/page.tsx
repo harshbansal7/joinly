@@ -5,6 +5,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Bot,
@@ -29,6 +30,7 @@ import { agentsApi, Agent, CreateAgentRequest } from '@/lib/api';
 import CreateAgentPage from './agents/create/page';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const {
     agents,
     isLoading,
@@ -245,7 +247,12 @@ export default function DashboardPage() {
               <DialogHeader>
                 <DialogTitle>Create New Agent</DialogTitle>
               </DialogHeader>
-              <CreateAgentPage onCreate={handleCreateAgent} onCancel={() => setCreateDialogOpen(false)} />
+              <div className="text-center py-8">
+                <p className="text-muted-foreground mb-4">Agent creation form should be accessed via the dedicated page.</p>
+                <Button onClick={() => router.push('/agents/create')} className="w-full">
+                  Go to Agent Creation Page
+                </Button>
+              </div>
             </DialogContent>
           </Dialog>
         </div>

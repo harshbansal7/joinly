@@ -51,6 +51,8 @@ func SetupRouter(cfg *config.Config, agentManager *manager.AgentManager) *gin.En
 		agents.POST("/:agent_id/stop", handler.StopAgent)
 		agents.POST("/:agent_id/join-meeting", handler.JoinMeeting)
 		agents.GET("/:agent_id/logs", handler.GetAgentLogs)
+		agents.GET("/:agent_id/analysis", handler.GetAgentAnalysis)
+		agents.GET("/:agent_id/analysis/formatted", handler.GetAgentAnalysisFormatted)
 	}
 
 	// WebSocket routes

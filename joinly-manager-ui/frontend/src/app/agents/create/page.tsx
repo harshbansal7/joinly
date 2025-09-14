@@ -5,8 +5,9 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { PromptConfiguration } from './components/PromptConfiguration';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { Resolver, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
@@ -49,12 +50,15 @@ import { agentsApi } from '@/lib/api';
 const agentSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   meeting_url: z.string().url('Must be a valid URL'),
+  conversation_mode: z.enum(['conversational', 'analyst']).default('conversational'),
   llm_provider: z.enum(['openai', 'anthropic', 'google', 'ollama']),
   llm_model: z.string().min(1, 'Model is required'),
   tts_provider: z.enum(['kokoro', 'elevenlabs', 'deepgram']),
   stt_provider: z.enum(['whisper', 'deepgram']),
   language: z.string().min(1, 'Language is required'),
   custom_prompt: z.string().optional(),
+  personality_prompt: z.string().optional(),
+
   name_trigger: z.boolean(),
   auto_join: z.boolean(),
   // Advanced parameters
@@ -213,6 +217,39 @@ const MEETING_STYLE_OPTIONS = [
   }
 ];
 
+const CONVERSATION_MODE_OPTIONS = [
+  {
+    value: 'conversational',
+    label: 'Conversational',
+    icon: MessageSquare,
+    description: 'Active participation in meetings',
+    caption: 'Agent listens, responds, and speaks during meetings',
+    color: 'bg-slate-50 border-slate-200 hover:bg-slate-100 dark:bg-slate-900/50 dark:border-slate-700 dark:hover:bg-slate-800/50',
+    selectedColor: 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-100',
+    workflow: [
+      { step: 'Agent joins meeting', color: 'bg-blue-500' },
+      { step: 'Listens to conversation', color: 'bg-green-500' },
+      { step: 'Processes and responds', color: 'bg-purple-500' },
+      { step: 'Speaks responses', color: 'bg-orange-500' }
+    ]
+  },
+  {
+    value: 'analyst',
+    label: 'Analyst Mode',
+    icon: Eye,
+    description: 'Silent analysis and note-taking',
+    caption: 'Agent transcribes and analyzes without speaking',
+    color: 'bg-slate-50 border-slate-200 hover:bg-slate-100 dark:bg-slate-900/50 dark:border-slate-700 dark:hover:bg-slate-800/50',
+    selectedColor: 'bg-slate-900 text-white border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-100',
+    workflow: [
+      { step: 'Agent joins meeting', color: 'bg-blue-500' },
+      { step: 'Transcribes everything', color: 'bg-green-500' },
+      { step: 'Analyzes content', color: 'bg-purple-500' },
+      { step: 'Generates insights', color: 'bg-orange-500' }
+    ]
+  }
+];
+
 // Utility function to get the appropriate logo based on current theme and selection state
 const getProviderLogo = (provider: typeof PROVIDER_OPTIONS[0], isDarkMode: boolean, isSelected: boolean = false) => {
   // When selected, use the opposite logo because selected items have inverted backgrounds
@@ -330,17 +367,20 @@ export default function CreateAgentPage() {
     getValues,
     formState: { errors },
   } = useForm<AgentFormData>({
-    resolver: zodResolver(agentSchema),
+    resolver: zodResolver(agentSchema) as Resolver<AgentFormData>,
     mode: 'onChange',
     defaultValues: {
       name: '',
       meeting_url: '',
+      conversation_mode: 'conversational',
       llm_provider: 'google',
       llm_model: 'gemini-2.5-flash-lite',
       tts_provider: 'kokoro',
       stt_provider: 'whisper',
       language: 'en',
       custom_prompt: '',
+      personality_prompt: '',
+
       name_trigger: false,
       auto_join: true,
       utterance_tail_seconds: 1.0,
@@ -374,7 +414,7 @@ export default function CreateAgentPage() {
   const watchedSTT = watch('stt_provider');
   const watchedLanguage = watch('language');
   const envVars = watch('env_vars');
-
+  const watchedConversationMode = watch('conversation_mode');
   const handleProviderChange = (provider: string) => {
     setValue('llm_provider', provider as 'openai' | 'anthropic' | 'google' | 'ollama');
 
@@ -453,7 +493,7 @@ export default function CreateAgentPage() {
   const selectedTTS = TTS_OPTIONS.find(t => t.value === watchedTTS);
   const selectedSTT = STT_OPTIONS.find(s => s.value === watchedSTT);
   const selectedLanguage = LANGUAGE_OPTIONS.find(l => l.value === watchedLanguage);
-
+  const selectedConversationMode = CONVERSATION_MODE_OPTIONS.find(c => c.value === watchedConversationMode);
   return (
     <Layout title="Create Agent" subtitle="Configure your AI meeting assistant">
       <div className="max-w-6xl mx-auto">
@@ -611,6 +651,117 @@ export default function CreateAgentPage() {
                       </div>
                     </div>
 
+                    {/* Conversation Mode Section */}
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-slate-100 dark:bg-zinc-800 rounded-lg">
+                            <MessageSquare className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
+                          </div>
+                          <div>
+                            <h2 id="conversation-mode-heading" className="text-2xl font-semibold">Conversation Mode</h2>
+                            <p className="text-sm text-slate-600 dark:text-zinc-400 mt-1">
+                              Choose how your agent behaves in meetings
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Agent Behavior <span className="text-red-500" aria-label="required">*</span></Label>
+                          <p className="text-xs text-slate-500 dark:text-zinc-500">Select the primary mode for your agent</p>
+                        </div>
+
+                        <div
+                          role="radiogroup"
+                          aria-labelledby="conversation-mode-label"
+                          aria-describedby="conversation-mode-description"
+                          className="grid gap-4 grid-cols-1 lg:grid-cols-2"
+                        >
+                          {CONVERSATION_MODE_OPTIONS.map((mode, index) => (
+                            <button
+                              key={mode.value}
+                              role="radio"
+                              aria-checked={watch('conversation_mode') === mode.value}
+                              aria-describedby={`conversation-mode-${mode.value}-description`}
+                              tabIndex={watch('conversation_mode') === mode.value ? 0 : -1}
+                              type="button"
+                              onClick={() => setValue('conversation_mode', mode.value as 'conversational' | 'analyst')}
+                              onKeyDown={(e) => handleRadioKeyDown(e, CONVERSATION_MODE_OPTIONS, watch('conversation_mode'), (value) => setValue('conversation_mode', value as 'conversational' | 'analyst'))}
+                              className={`p-6 rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                watch('conversation_mode') === mode.value
+                                  ? `${mode.selectedColor} ring-2 ring-blue-500 ring-offset-2`
+                                  : `${mode.color} hover:shadow-lg`
+                              }`}
+                            >
+                              <div className="text-center space-y-4">
+                                <div className="w-12 h-12 mx-auto flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-700">
+                                  <mode.icon className="h-6 w-6 text-slate-600 dark:text-zinc-400" />
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="text-lg font-semibold">{mode.label}</div>
+                                  <div className="text-sm text-slate-600 dark:text-zinc-400">{mode.description}</div>
+                                  <div className="text-xs opacity-75">{mode.caption}</div>
+                                </div>
+                              </div>
+                              <div id={`conversation-mode-${mode.value}-description`} className="sr-only">
+                                {mode.description}. {mode.caption}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                        <div id="conversation-mode-description" className="sr-only">
+                          Choose how your agent behaves in meetings. Conversational mode allows active participation, Analyst mode provides silent analysis and note-taking.
+                        </div>
+                      </div>
+
+                      {/* Mode-specific information */}
+                      {watch('conversation_mode') === 'analyst' && (
+                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                          <div className="flex items-start gap-3">
+                            <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Eye className="h-3 w-3 text-white" />
+                            </div>
+                            <div className="space-y-2">
+                              <div className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                Analyst Mode Features
+                              </div>
+                              <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                                <div>✓ Comprehensive meeting transcription</div>
+                                <div>✓ Automated summary generation</div>
+                                <div>✓ Key points and action items extraction</div>
+                                <div>✓ Topic analysis and sentiment detection</div>
+                                <div>✓ Structured analysis reports via API</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {watch('conversation_mode') === 'conversational' && (
+                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                          <div className="flex items-start gap-3">
+                            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <MessageSquare className="h-3 w-3 text-white" />
+                            </div>
+                            <div className="space-y-2">
+                              <div className="text-sm font-medium text-green-900 dark:text-green-100">
+                                Conversational Mode Features
+                              </div>
+                              <div className="text-xs text-green-700 dark:text-green-300 space-y-1">
+                                <div>✓ Active participation in meetings</div>
+                                <div>✓ Real-time responses and conversation</div>
+                                <div>✓ Voice synthesis and natural speech</div>
+                                <div>✓ Contextual understanding and memory</div>
+                                <div>✓ Customizable response prompts</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     {/* AI Configuration Section */}
                     <div className="space-y-8">
                       <div className="space-y-2">
@@ -734,17 +885,18 @@ export default function CreateAgentPage() {
                         </div>
                       )}
 
-                      {/* Voice & Language Configuration */}
-                      <div className="grid gap-6 lg:grid-cols-2">
-                        {/* Text-to-Speech */}
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium flex items-center gap-2">
-                              <Volume2 className="h-4 w-4" />
-                              Text-to-Speech <span className="text-red-500" aria-label="required">*</span>
-                            </Label>
-                            <p className="text-xs text-slate-500 dark:text-zinc-500">Choose how your agent speaks</p>
-                          </div>
+                        {/* Voice & Language Configuration */}
+                      <div className={`grid gap-6 ${watchedConversationMode === 'analyst' ? 'lg:grid-cols-1' : 'lg:grid-cols-2'}`}>
+                        {/* Text-to-Speech - Only show if not in analyst mode */}
+                        {watchedConversationMode !== 'analyst' && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium flex items-center gap-2">
+                                <Volume2 className="h-4 w-4" />
+                                Text-to-Speech <span className="text-red-500" aria-label="required">*</span>
+                              </Label>
+                              <p className="text-xs text-slate-500 dark:text-zinc-500">Choose how your agent speaks</p>
+                            </div>
 
                           <div
                             ref={ttsGroupRef}
@@ -788,8 +940,9 @@ export default function CreateAgentPage() {
                             Choose a text-to-speech provider for your agent. Use arrow keys to navigate between options, space or enter to select.
                           </div>
                         </div>
+                        )}
 
-                    {/* Language Selection - Dropdown */}
+                        {/* Language Selection - Dropdown */}
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium flex items-center gap-2">
@@ -933,32 +1086,12 @@ export default function CreateAgentPage() {
                       </div>
 
                       {/* Custom Prompt Section */}
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Custom Prompt</Label>
-                          <p className="text-xs text-slate-500 dark:text-zinc-500">Customize how your agent responds to conversations</p>
-                        </div>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="custom_prompt" className="text-sm font-medium">
-                              LLM Response Prompt
-                            </Label>
-                            <p className="text-xs text-slate-500 dark:text-zinc-500">
-                              Custom instructions for how your agent generates responses. Use placeholders: {"{agent_name}"}, {"{speaker}"}, {"{text}"}, {"{context}"}
-                            </p>
-                          </div>
-                          <Textarea
-                            id="custom_prompt"
-                            {...register('custom_prompt')}
-                            placeholder="You are {agent_name}, a helpful assistant. The participant {speaker} just said: '{text}'. Respond naturally and helpfully based on the context: {context}"
-                            rows={4}
-                            className="font-mono text-sm"
-                          />
-                          <p className="text-xs text-slate-600 dark:text-zinc-400">
-                            Leave empty to use the default conversational prompt. This customizes how your agent thinks and responds.
-                          </p>
-                        </div>
-                      </div>
+                      <PromptConfiguration
+                        conversationMode={watchedConversationMode}
+                        register={register}
+                        errors={errors}
+                        watch={watch}
+                      />
 
                     </div>
 
@@ -978,6 +1111,7 @@ export default function CreateAgentPage() {
                             </div>
                           </div>
                           <Button
+                            type="button"
                             variant="outline"
                             size="sm"
                             onClick={() => setShowAdvanced(!showAdvanced)}
@@ -1016,7 +1150,7 @@ export default function CreateAgentPage() {
                                 step="0.1"
                                 min="0.1"
                                 max="5.0"
-                                {...register('utterance_tail_seconds')}
+                                {...register('utterance_tail_seconds', { valueAsNumber: true })}
                                 placeholder="e.g., 1.0"
                                 className="h-12 text-base border-2 border-blue-200 dark:border-blue-700 focus:border-blue-500 dark:focus:border-blue-500 bg-white dark:bg-slate-900/50 transition-colors rounded-lg"
                                 aria-describedby="utterance-tail-seconds-description"
@@ -1044,7 +1178,7 @@ export default function CreateAgentPage() {
                                 step="0.1"
                                 min="0.1"
                                 max="2.0"
-                                {...register('no_speech_event_delay')}
+                                {...register('no_speech_event_delay', { valueAsNumber: true })}
                                 placeholder="e.g., 0.5"
                                 className="h-12 text-base border-2 border-blue-200 dark:border-blue-700 focus:border-blue-500 dark:focus:border-blue-500 bg-white dark:bg-slate-900/50 transition-colors rounded-lg"
                                 aria-describedby="no-speech-event-delay-description"
@@ -1071,7 +1205,7 @@ export default function CreateAgentPage() {
                                 type="number"
                                 min="1"
                                 max="20"
-                                {...register('max_stt_tasks')}
+                                  {...register('max_stt_tasks', { valueAsNumber: true })}
                                 placeholder="e.g., 5"
                                 className="h-12 text-base border-2 border-blue-200 dark:border-blue-700 focus:border-blue-500 dark:focus:border-blue-500 bg-white dark:bg-slate-900/50 transition-colors rounded-lg"
                                 aria-describedby="max-stt-tasks-description"
@@ -1098,7 +1232,7 @@ export default function CreateAgentPage() {
                                 type="number"
                                 min="10"
                                 max="1000"
-                                {...register('window_queue_size')}
+                                {...register('window_queue_size', { valueAsNumber: true })}
                                 placeholder="e.g., 100"
                                 className="h-12 text-base border-2 border-blue-200 dark:border-blue-700 focus:border-blue-500 dark:focus:border-blue-500 bg-white dark:bg-slate-900/50 transition-colors rounded-lg"
                                 aria-describedby="window-queue-size-description"
@@ -1244,7 +1378,10 @@ export default function CreateAgentPage() {
                         {watch('name') || 'Your Agent'}
                       </h3>
                       <div className="text-sm text-muted-foreground">
-                        AI Meeting Assistant with Conversational Context
+                        {watch('conversation_mode') === 'analyst'
+                          ? 'Silent Analysis & Comprehensive Note-Taking'
+                          : 'AI Meeting Assistant with Conversational Context'
+                        }
                       </div>
 
                       {/* Capability Badges */}
@@ -1255,7 +1392,7 @@ export default function CreateAgentPage() {
                             {selectedSTT.label}
                           </Badge>
                         )}
-                        {selectedTTS && (
+                        {watch('conversation_mode') === 'conversational' && selectedTTS && (
                           <Badge variant="outline" className="text-xs px-2 py-1">
                             <Volume2 className="h-3 w-3 inline mr-1" />
                             {selectedTTS.label}
@@ -1267,8 +1404,17 @@ export default function CreateAgentPage() {
                           </Badge>
                         )}
                         <Badge variant="outline" className="text-xs px-2 py-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700">
-                          <Brain className="h-3 w-3 inline mr-1" />
-                          Context Aware
+                          {watch('conversation_mode') === 'analyst' ? (
+                            <>
+                              <Eye className="h-3 w-3 inline mr-1" />
+                              Analyst Mode
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="h-3 w-3 inline mr-1" />
+                              Context Aware
+                            </>
+                          )}
                         </Badge>
                       </div>
                     </div>
@@ -1280,18 +1426,15 @@ export default function CreateAgentPage() {
                     <div className="relative">
                       <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 dark:from-zinc-600 dark:via-zinc-500 dark:to-zinc-600"></div>
                       <div className="space-y-1">
-                        <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
-                          <span className="text-sm">Agent joins meeting</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
-                          <span className="text-sm">Listens to conversation</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-purple-500 rounded-full flex-shrink-0"></div>
-                          <span className="text-sm">Processes and responds</span>
-                        </div>
+                        {(() => {
+                          const selectedMode = CONVERSATION_MODE_OPTIONS.find(mode => mode.value === watch('conversation_mode'));
+                          return selectedMode ? selectedMode.workflow.map((step, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                              <div className={`w-3 h-3 ${step.color} rounded-full flex-shrink-0`}></div>
+                              <span className="text-sm">{step.step}</span>
+                            </div>
+                          )) : null;
+                        })()}
                       </div>
                     </div>
 
@@ -1299,10 +1442,16 @@ export default function CreateAgentPage() {
                     <div className="mt-4 p-3 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-zinc-900/50 dark:to-zinc-800/50 rounded-lg border border-slate-200 dark:border-zinc-700">
                       <div className="text-center">
                         <div className="text-sm font-medium mb-1">
-                          🎯 Intelligent Meeting Assistant
+                          {watch('conversation_mode') === 'analyst'
+                            ? '📊 Comprehensive Meeting Analysis'
+                            : '🎯 Intelligent Meeting Assistant'
+                          }
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          Configured with conversational context for natural, contextual responses
+                          {watch('conversation_mode') === 'analyst'
+                            ? 'Advanced AI analysis for detailed meeting insights and structured reporting'
+                            : 'Configured with conversational context for natural, contextual responses'
+                          }
                         </div>
                       </div>
                     </div>

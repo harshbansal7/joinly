@@ -1,0 +1,207 @@
+{
+  "meeting_id": "agent_8bd93a4b",
+  "meeting_url": "https://meet.google.com/vhc-ecju-ejd?authuser=0",
+  "start_time": "2025-09-15T01:12:58.167095+05:30",
+  "last_updated": "2025-09-15T01:15:18.971676+05:30",
+  "transcript": [
+    {
+      "timestamp": "2025-09-15T01:13:23.980644+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Everyone, so the agenda for this meeting is discussing our new venture",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:13:28.972643+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "which is related to tech product.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:13:31.972306+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "We won't be disclosing the name right now for compliance reasons, but",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:13:36.97324+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "the idea basically is to have a store for our partners",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:13:41.973578+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "partners. I mean, the delivery partner",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:13:44.972183+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "who are serving food on our platform. So these partners will have",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:13:49.974037+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "access to an internal shop, which will be",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:13:53.971927+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "accessible through their own rider management platform.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:13:57.972188+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And so they can click the link and go to the store",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:01.971765+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "where they can pay directly from the wallet of the",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:05.972783+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "writer itself. So they don't need to.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:11.973178+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Do any UPI payment or card payments. They can just pay directly from the rider wallet.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:14.972503+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And we will deduct the money from their wallet",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:18.974035+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "and give them the item using our logistics service.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:22.972352+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "So, primarily, the agenda for this",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:27.974598+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "meeting is discussing why do we need this feature. And so",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:31.971618+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "we thought that it is important for writers to have",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:36.970859+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "a source of, you know, marketplace",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:39.97224+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "our platform itself. So they are earning money from our platform.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:43.97339+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "But they should also have a platform to spend some money",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:47.971223+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "get their items that that they use from day to day",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:52.970987+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "on our platform itself. So the items would include things like",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:14:57.971028+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "charging cables, water bottles,",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:15:01.97316+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "medicines, and stuff like that.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:15:04.973227+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "That can be purchased under five hundred rupees, thousand rupees, and",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:15:08.97666+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "also can be paid from the RiderBotet, like,",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:15:11.970861+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "not too expensive. So this is the whole point of the",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:15:16.971613+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "marketplace concept and",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T01:15:18.971675+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "I hope everyone understood what the idea was.",
+      "is_agent": false
+    }
+  ],
+  "summary": "The meeting discussed a new venture involving an internal store for delivery partners on the platform. This store will be accessible through the rider management platform, allowing partners to purchase items directly using funds from their rider wallets, avoiding the need for UPI or card payments. The money will be deducted from their wallets, and items will be delivered using the company's logistics service. The primary goal is to provide partners with a marketplace within the platform where they can spend money earned from the platform itself.",
+  "key_points": [
+    "New venture: An internal store for delivery partners (riders) on the platform.",
+    "Access: The store will be accessible through the rider management platform.",
+    "Payment method: Riders can pay directly from their own wallets, with deductions made from their earnings.",
+    "Logistics: Items will be delivered using the company's logistics service.",
+    "Rationale: To provide riders with a marketplace to spend money earned on the platform."
+  ],
+  "action_items": [],
+  "topics": [],
+  "participants": [
+    "Harsh Bansal"
+  ],
+  "duration_minutes": 2.3467877923666665,
+  "word_count": 264,
+  "sentiment": "positive",
+  "keywords": [
+    "tech product",
+    "partners",
+    "delivery partner",
+    "rider management platform",
+    "rider wallet",
+    "marketplace",
+    "internal shop"
+  ]
+}

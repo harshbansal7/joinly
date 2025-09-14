@@ -1,0 +1,51 @@
+{
+  "meeting_id": "test-agent",
+  "meeting_url": "https://meet.google.com/test",
+  "start_time": "2025-09-15T00:34:00.04887+05:30",
+  "last_updated": "2025-09-15T00:34:00.186011+05:30",
+  "transcript": [
+    {
+      "timestamp": "2025-09-15T00:34:00+05:30",
+      "speaker": "Alice",
+      "text": "Hello everyone, let's discuss the project timeline.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:34:00+05:30",
+      "speaker": "Alice",
+      "text": "Hello everyone, let's discuss the project timeline.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:34:01+05:30",
+      "speaker": "Bob",
+      "text": "I think we should move the deadline by two weeks.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:34:02+05:30",
+      "speaker": "Alice",
+      "text": "That sounds reasonable. What are the main risks?",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:34:03+05:30",
+      "speaker": "Charlie",
+      "text": "The main risk is the dependency on the external API.",
+      "is_agent": false
+    }
+  ],
+  "summary": "",
+  "key_points": [],
+  "action_items": [],
+  "topics": [],
+  "participants": [
+    "Alice",
+    "Bob",
+    "Charlie"
+  ],
+  "duration_minutes": 0.0022857,
+  "word_count": 42,
+  "sentiment": "",
+  "keywords": null
+}

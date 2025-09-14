@@ -80,11 +80,27 @@ func (m *AgentManager) processUtteranceTask(ctx context.Context, agentID string,
 
 	m.mu.RLock()
 	client, clientExists := m.clients[agentID]
-	_, agentExists := m.agents[agentID]
+	agent, agentExists := m.agents[agentID]
+	analyst, isAnalyst := m.analysts[agentID]
+	conversationMode := models.ConversationModeConversational
+	agentName := "Assistant"
+	if agentExists {
+		conversationMode = agent.Config.ConversationMode
+		agentName = agent.Config.Name
+	}
 	m.mu.RUnlock()
 
 	if !clientExists || !agentExists {
 		return
+	}
+
+	// Handle analyst mode differently - no responses, just analysis
+	if conversationMode == models.ConversationModeAnalyst {
+		if isAnalyst {
+			analyst.ProcessUtterance(segments)
+			m.addLogEntry(agentID, "info", fmt.Sprintf("📊 Analysis updated for %s", speaker))
+		}
+		return // Don't generate responses in analyst mode
 	}
 
 	// Check for cancellation again
@@ -122,7 +138,7 @@ func (m *AgentManager) processUtteranceTask(ctx context.Context, agentID string,
 
 	if response != "" {
 		// Log only the agent's response - single log per response
-		m.addLogEntry(agentID, "info", fmt.Sprintf("🤖 %s: %s", m.agents[agentID].Config.Name, response))
+		m.addLogEntry(agentID, "info", fmt.Sprintf("🤖 %s: %s", agentName, response))
 		// Add assistant response to conversation context
 		m.updateConversationContext(agentID, "Assistant", response)
 

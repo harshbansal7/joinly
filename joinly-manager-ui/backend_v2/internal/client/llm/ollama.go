@@ -20,8 +20,13 @@ func NewOllamaProvider(model string) *OllamaProvider {
 	return &OllamaProvider{model: model}
 }
 
-// Call makes a request to the Ollama API
+// Call makes a request to the Ollama API (backward compatibility)
 func (p *OllamaProvider) Call(prompt string) (string, error) {
+	return p.CallWithSchema(prompt, nil)
+}
+
+// CallWithSchema makes a request to the Ollama API with optional structured response schema
+func (p *OllamaProvider) CallWithSchema(prompt string, schema *ResponseSchema) (string, error) {
 	ollamaURL := os.Getenv("OLLAMA_URL")
 	if ollamaURL == "" {
 		host := os.Getenv("OLLAMA_HOST")
@@ -37,13 +42,26 @@ func (p *OllamaProvider) Call(prompt string) (string, error) {
 
 	url := ollamaURL + "/api/generate"
 
+	// Enhance prompt with schema instructions if provided
+	enhancedPrompt := prompt
+	if schema != nil {
+		schemaStr, _ := json.MarshalIndent(schema, "", "  ")
+		enhancedPrompt = fmt.Sprintf(`Please respond with a valid JSON object that matches this schema:
+
+%s
+
+%s
+
+Respond ONLY with the JSON object, no additional text or explanation.`, string(schemaStr), prompt)
+	}
+
 	payload := map[string]interface{}{
 		"model":  p.model,
-		"prompt": prompt,
+		"prompt": enhancedPrompt,
 		"stream": false,
 		"options": map[string]interface{}{
-			"num_predict": 150,
-			"temperature": 0.7,
+			"num_predict": 2000, // Increased for analysis tasks
+			"temperature": 0.3,  // Lower temperature for more consistent analysis
 		},
 	}
 
@@ -126,4 +144,3 @@ func (p *OllamaProvider) extractResponseText(body []byte) (string, error) {
 
 	return "", fmt.Errorf("could not extract response text from Ollama API response")
 }
-

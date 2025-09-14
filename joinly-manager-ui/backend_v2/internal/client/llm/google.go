@@ -27,8 +27,34 @@ func (p *GoogleProvider) GetAPICallCount() int64 {
 	return atomic.LoadInt64(&p.apiCalls)
 }
 
-// Call makes a request to the Google AI API
+// Call makes a request to the Google AI API (backward compatibility)
 func (p *GoogleProvider) Call(prompt string) (string, error) {
+	// Use default conversational schema
+	defaultSchema := &ResponseSchema{
+		Type: "OBJECT",
+		Properties: map[string]interface{}{
+			"assistant_reply": map[string]interface{}{
+				"type": "STRING",
+			},
+			"metadata": map[string]interface{}{
+				"type": "OBJECT",
+				"properties": map[string]interface{}{
+					"topic": map[string]interface{}{
+						"type": "STRING",
+					},
+					"confidence": map[string]interface{}{
+						"type": "NUMBER",
+					},
+				},
+			},
+		},
+		Required: []string{"assistant_reply", "metadata"},
+	}
+	return p.CallWithSchema(prompt, defaultSchema)
+}
+
+// CallWithSchema makes a request to the Google AI API with structured response schema
+func (p *GoogleProvider) CallWithSchema(prompt string, schema *ResponseSchema) (string, error) {
 	// Increment API call counter
 	atomic.AddInt64(&p.apiCalls, 1)
 
@@ -58,32 +84,20 @@ func (p *GoogleProvider) Call(prompt string) (string, error) {
 				},
 			},
 		},
-		"generationConfig": map[string]interface{}{
-			"maxOutputTokens":  1000,
-			"temperature":      0.7,
-			"responseMimeType": "application/json",
-			"responseSchema": map[string]interface{}{
-				"type": "OBJECT",
-				"properties": map[string]interface{}{
-					"assistant_reply": map[string]interface{}{
-						"type": "STRING",
-					},
-					"metadata": map[string]interface{}{
-						"type": "OBJECT",
-						"properties": map[string]interface{}{
-							"topic": map[string]interface{}{
-								"type": "STRING",
-							},
-							"confidence": map[string]interface{}{
-								"type": "NUMBER",
-							},
-						},
-					},
-				},
-				"required": []string{"assistant_reply", "metadata"},
-			},
-		},
 	}
+
+	// Configure generation settings based on whether schema is provided
+	generationConfig := map[string]interface{}{
+		"maxOutputTokens": 2000, // Increased for analysis tasks
+		"temperature":     0.3,  // Lower temperature for more consistent analysis
+	}
+
+	if schema != nil {
+		generationConfig["responseMimeType"] = "application/json"
+		generationConfig["responseSchema"] = schema
+	}
+
+	payload["generationConfig"] = generationConfig
 
 	result, err := p.makeHTTPCall(url, payload, map[string]string{
 		"Content-Type": "application/json",

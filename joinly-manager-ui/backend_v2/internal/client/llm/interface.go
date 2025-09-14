@@ -2,9 +2,18 @@ package llm
 
 import "fmt"
 
+// ResponseSchema represents a structured response schema for LLM providers
+type ResponseSchema struct {
+	Type       string                 `json:"type"`
+	Properties map[string]interface{} `json:"properties,omitempty"`
+	Required   []string               `json:"required,omitempty"`
+	Items      interface{}            `json:"items,omitempty"`
+}
+
 // LLMProvider defines the interface for LLM providers
 type LLMProvider interface {
 	Call(prompt string) (string, error)
+	CallWithSchema(prompt string, schema *ResponseSchema) (string, error)
 	IsAvailable() bool
 }
 

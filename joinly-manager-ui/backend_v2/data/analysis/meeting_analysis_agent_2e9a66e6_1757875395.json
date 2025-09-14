@@ -1,0 +1,322 @@
+{
+  "meeting_id": "agent_2e9a66e6",
+  "meeting_url": "https://meet.google.com/xpn-ruct-sxf?authuser=0",
+  "start_time": "2025-09-15T00:13:15.927185+05:30",
+  "last_updated": "2025-09-15T00:17:51.067289+05:30",
+  "transcript": [
+    {
+      "timestamp": "2025-09-15T00:14:01.080461+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "So the agenda for this meeting is that this is our daily stand up call",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:06.076388+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "and we'll be discussing what kind of task each one",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:10.080355+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "person in the team has done. So let's get started.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:17.086906+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "So first, talking about Sam. Sam finished forty tasks",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:19.087156+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "in the last week.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:24.083179+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And all almost all the tasks were small ones that",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:27.076477+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "is why this number is so large. But he was very",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:32.075465+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "excited about the work, and he",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:35.075844+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "enjoyed doing it and also added his own touch to the work so that",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:37.076117+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "it looks more impactful.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:43.078486+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Then coming to our second person, Robert. Robert,",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:48.07383+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "finished around twenty five tasks in which two were very, very major tasks.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:52.072829+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "So he focused on them more, and there were bugs in his remaining twenty",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:14:57.072953+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "three tasks. But he was still able to manage",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:15:02.108282+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "fixing them and ensure that the production had lowest amount of downtime.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:15:21.072426+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Coming to",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:15:37.075603+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "okay. Coming to GK. GK was focused mostly on his",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:15:41.070039+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "own work rather than the company's work, but yet he was able to",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:15:46.071947+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "do around fifteen tasks in the last week.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:15:49.070385+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Almost all of them were very important ones, and so his",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:15:53.069431+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "contribution may be noted specifically",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:15:56.07103+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "because despite his own work in his personal life,",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:00.071167+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "he was able to help us with those fifteen tasks",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:03.071206+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "There was a major bug in one of his codes where",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:08.072711+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "we were trying to take a log on an item that was already logged.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:12.071697+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And so this broke our systems for around thirty minutes.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:16.06986+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And CPU usage went up to ninety five percent",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:21.071526+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "causing five pagers to come while he was",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:26.070737+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "away, and so someone else had to take care of it.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:29.07302+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And we need to take note of this that this does not happen again and again.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:16:59.068473+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Also, guys, just to discuss another major update,",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:04.069016+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "So in the last meeting, we",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:08.067273+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "were told that our team has been performing really well, but the number of",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:13.067758+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "holidays that we take are too much.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:16.067261+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And though I try to defend to my best capabilities that",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:21.069812+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "my team is not taking too many holidays, it is just that we work",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:25.067351+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "too much, and so we have to take a little bit of rest. But still,",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:30.067081+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "we should try to ensure that this does not get noticed. If we are planning to take",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:35.067784+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "more than more than what we are supposed to in terms of lease,",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:39.073532+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "then either we should take them silently or",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:44.067862+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "I mean, just try to take less leaves",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:48.067019+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "and take rest in the office itself. I know this is",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-09-15T00:17:51.067287+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "something that I should not be saying, but at least we should try to manage this.",
+      "is_agent": false
+    }
+  ],
+  "summary": "This was a daily stand-up meeting where team members reported on their tasks from the past week. Sam completed 40 small tasks, adding personal touches to enhance their impact. Robert finished 25 tasks, including two major ones, and managed bugs in the remaining tasks, ensuring minimal production downtime. GK completed 15 important tasks, despite focusing on personal work, and his contributions were noted. A major bug was identified in GK's code, causing a 30-minute system outage and high CPU usage, which required another team member to handle. The meeting also addressed the issue of excessive holidays taken by the team, with a directive to be more discreet about taking time off to avoid negative attention.",
+  "key_points": [
+    "Robert completed approximately 25 tasks, with a focus on two major ones, and managed bugs effectively to minimize production downtime.",
+    "GK completed around 15 important tasks despite personal commitments, though a major bug in his code caused a 30-minute system outage and high CPU usage.",
+    "A critical bug related to logging an already logged item caused a system breakdown for 30 minutes, leading to high CPU usage and pager alerts.",
+    "There's a need to prevent recurrence of the system outage issue caused by GK's code.",
+    "The team's holiday usage was flagged as high in the previous meeting, and there's a need to manage this perception or actual usage to avoid negative attention."
+  ],
+  "action_items": [
+    {
+      "id": "action_1757875592932249000",
+      "description": "Ensure that the major bug in GK's code (logging an item that was already logged) does not happen again.",
+      "assignee": "GK",
+      "due_date": "0001-01-01T00:00:00Z",
+      "priority": "high",
+      "status": "pending",
+      "created_at": "2025-09-15T00:16:32.93225+05:30"
+    },
+    {
+      "id": "action_1757875662988185000",
+      "description": "Ensure the major bug in GK's code (logging an already logged item) does not happen again.",
+      "assignee": "GK",
+      "due_date": "0001-01-01T00:00:00Z",
+      "priority": "high",
+      "status": "pending",
+      "created_at": "2025-09-15T00:17:42.988186+05:30"
+    },
+    {
+      "id": "action_1757875662988191000",
+      "description": "Monitor and manage team holiday usage to avoid negative attention.",
+      "assignee": "Harsh Bansal",
+      "due_date": "0001-01-01T00:00:00Z",
+      "priority": "medium",
+      "status": "pending",
+      "created_at": "2025-09-15T00:17:42.988192+05:30"
+    }
+  ],
+  "topics": [],
+  "participants": [
+    "Harsh Bansal"
+  ],
+  "duration_minutes": 4.58583638265,
+  "word_count": 444,
+  "sentiment": "mixed",
+  "keywords": [
+    "major bug",
+    "logged",
+    "systems",
+    "CPU usage",
+    "pagers",
+    "holidays",
+    "performing well",
+    "work too much",
+    "rest",
+    "leaves"
+  ]
+}

@@ -136,6 +136,38 @@ func (c *JoinlyClient) parseJSONResponse(response string) (string, error) {
 	return strings.TrimSpace(parsed.AssistantReply), nil
 }
 
+// generateSummaryResponse generates a response for analysis purposes (no speaking)
+func (c *JoinlyClient) generateSummaryResponse(prompt string) string {
+	// Check if we have the necessary configuration for LLM calls
+	if c.config.LLMProvider == "" || c.config.LLMModel == "" {
+		c.log("warn", "No LLM provider/model configured for analysis")
+		return ""
+	}
+
+	// Get the LLM provider
+	provider, err := llm.GetProvider(string(c.config.LLMProvider), c.config.LLMModel)
+	if err != nil {
+		c.log("error", fmt.Sprintf("Failed to get LLM provider for analysis: %v", err))
+		return ""
+	}
+
+	// Check if API keys are available for the selected provider
+	if !provider.IsAvailable() {
+		c.log("error", fmt.Sprintf("No valid API key found for provider '%s' for analysis", c.config.LLMProvider))
+		return ""
+	}
+
+	response, err := provider.Call(prompt)
+	if err != nil {
+		c.log("error", fmt.Sprintf("Failed to generate analysis response: %v", err))
+		return ""
+	}
+
+	c.log("info", fmt.Sprintf("Analysis LLM response generated successfully"))
+
+	return strings.TrimSpace(response)
+}
+
 // getFallbackResponse provides a simple response when LLM is not available
 func (c *JoinlyClient) getFallbackResponse(speaker, text string) string {
 	// Simple placeholder responses (keeping the original logic as fallback)

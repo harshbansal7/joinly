@@ -20,6 +20,7 @@ type AgentManager struct {
 	clients             map[string]*client.JoinlyClient
 	agents              map[string]*models.Agent
 	meetings            map[string]*models.MeetingInfo
+	analysts            map[string]*client.AnalystAgent // Analyst agents for analysis mode
 	wsHub               *websocket.Hub
 	running             bool
 	startTime           time.Time
@@ -43,6 +44,7 @@ func NewAgentManager(cfg *config.Config) *AgentManager {
 		clients:             make(map[string]*client.JoinlyClient),
 		agents:              make(map[string]*models.Agent),
 		meetings:            make(map[string]*models.MeetingInfo),
+		analysts:            make(map[string]*client.AnalystAgent),
 		wsHub:               websocket.NewHub(),
 		running:             false,
 		startTime:           time.Now(),
@@ -106,4 +108,12 @@ func (m *AgentManager) Stop() error {
 
 	logrus.Info("Agent manager stopped successfully")
 	return nil
+}
+
+// GetAnalystAgent gets an analyst agent by ID
+func (m *AgentManager) GetAnalystAgent(agentID string) *client.AnalystAgent {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	return m.analysts[agentID]
 }

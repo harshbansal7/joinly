@@ -20,16 +20,35 @@ func NewAnthropicProvider(model string) *AnthropicProvider {
 	return &AnthropicProvider{model: model}
 }
 
-// Call makes a request to the Anthropic API
+// Call makes a request to the Anthropic API (backward compatibility)
 func (p *AnthropicProvider) Call(prompt string) (string, error) {
+	return p.CallWithSchema(prompt, nil)
+}
+
+// CallWithSchema makes a request to the Anthropic API with optional structured response schema
+func (p *AnthropicProvider) CallWithSchema(prompt string, schema *ResponseSchema) (string, error) {
 	url := "https://api.anthropic.com/v1/messages"
+
+	// Enhance prompt with schema instructions if provided
+	enhancedPrompt := prompt
+	if schema != nil {
+		schemaStr, _ := json.MarshalIndent(schema, "", "  ")
+		enhancedPrompt = fmt.Sprintf(`Please respond with a valid JSON object that matches this schema:
+
+%s
+
+%s
+
+Respond ONLY with the JSON object, no additional text or explanation.`, string(schemaStr), prompt)
+	}
 
 	payload := map[string]interface{}{
 		"model":      p.model,
-		"max_tokens": 150,
+		"max_tokens": 2000, // Increased for analysis tasks
 		"messages": []map[string]string{
-			{"role": "user", "content": prompt},
+			{"role": "user", "content": enhancedPrompt},
 		},
+		"temperature": 0.3, // Lower temperature for more consistent analysis
 	}
 
 	return p.makeHTTPCall(url, payload, map[string]string{
@@ -98,4 +117,3 @@ func (p *AnthropicProvider) extractResponseText(body []byte) (string, error) {
 
 	return "", fmt.Errorf("could not extract response text from Anthropic API response")
 }
-

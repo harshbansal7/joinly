@@ -50,6 +50,11 @@ func (h *Handler) CreateAgent(c *gin.Context) {
 	val := 1.0
 	config.UtteranceTailSeconds = &val
 
+	// Set default conversation mode if not provided
+	if config.ConversationMode == "" {
+		config.ConversationMode = models.ConversationModeConversational
+	}
+
 	agent, err := h.agentManager.CreateAgent(config)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -208,4 +213,63 @@ func (h *Handler) GetWebSocketStats(c *gin.Context) {
 		"total_clients":    wsHub.GetClientCount(),
 		"agents_monitored": len(h.agentManager.ListAgents()),
 	})
+}
+
+// GetAgentAnalysis handles GET /agents/{agent_id}/analysis
+func (h *Handler) GetAgentAnalysis(c *gin.Context) {
+	agentID := c.Param("agent_id")
+
+	// Check if agent exists and is in analyst mode
+	agent, exists := h.agentManager.GetAgent(agentID)
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Agent not found"})
+		return
+	}
+
+	if agent.Config.ConversationMode != models.ConversationModeAnalyst {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Agent is not in analyst mode"})
+		return
+	}
+
+	// Get the analyst agent
+	analyst := h.agentManager.GetAnalystAgent(agentID)
+	if analyst == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Analyst agent not found"})
+		return
+	}
+
+	// Get analysis data
+	analysis := analyst.GetAnalysis()
+	c.JSON(http.StatusOK, analysis)
+}
+
+// GetAgentAnalysisFormatted handles GET /agents/{agent_id}/analysis/formatted
+func (h *Handler) GetAgentAnalysisFormatted(c *gin.Context) {
+	agentID := c.Param("agent_id")
+
+	// Check if agent exists and is in analyst mode
+	agent, exists := h.agentManager.GetAgent(agentID)
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Agent not found"})
+		return
+	}
+
+	if agent.Config.ConversationMode != models.ConversationModeAnalyst {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Agent is not in analyst mode"})
+		return
+	}
+
+	// Get the analyst agent
+	analyst := h.agentManager.GetAnalystAgent(agentID)
+	if analyst == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Analyst agent not found"})
+		return
+	}
+
+	// Get formatted analysis
+	formattedAnalysis := analyst.GetFormattedAnalysis()
+
+	// Return as plain text
+	c.Header("Content-Type", "text/plain; charset=utf-8")
+	c.String(http.StatusOK, formattedAnalysis)
 }
