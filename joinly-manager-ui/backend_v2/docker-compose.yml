@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  joinly-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8001
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      - JOINLY_URL=http://host.docker.internal:8000/mcp/
+      - MAX_AGENTS=10
+      # Add your API keys here or mount a .env file
+      # - OPENAI_API_KEY=your_key_here
+      # - ANTHROPIC_API_KEY=your_key_here
+      # - ELEVENLABS_API_KEY=your_key_here
+    volumes:
+      # Mount .env file from parent directory if it exists
+      - ../../.env:/root/.env:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - joinly-network
+
+  # Optional: If you want to run the joinly server as well
+  # joinly-server:
+  #   image: joinly/joinly-server:latest
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - JOINLY_PORT=8000
+  #   restart: unless-stopped
+  #   networks:
+  #     - joinly-network
+
+networks:
+  joinly-network:
+    driver: bridge
