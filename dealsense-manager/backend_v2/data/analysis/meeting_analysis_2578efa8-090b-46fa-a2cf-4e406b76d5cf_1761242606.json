@@ -1,0 +1,259 @@
+{
+  "meeting_id": "2578efa8-090b-46fa-a2cf-4e406b76d5cf",
+  "meeting_url": "https://meet.google.com/uye-schq-shm?authuser=0",
+  "start_time": "2025-10-23T23:33:26.141527+05:30",
+  "last_updated": "2025-10-23T23:38:07.85104+05:30",
+  "transcript": [
+    {
+      "timestamp": "2025-10-23T23:33:55.796821+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Hello. How are you?",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:01.835331+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "This is a sample data for creating the summaries and transcript. Of our",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:07.779181+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "data, and this will allow us to be able to",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:10.785965+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "you know,",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:16.796096+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "get the data from AI and",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:28.788513+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "for some reason, data is still not getting populated properly.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:34.793416+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "We will speak more so that the data can get populated more correctly. As",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:37.79109+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "the more we speak, the more data is getting collected.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:40.796515+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And it is possible that the transcript is not long enough",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:43.881986+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "for the summary to get generated.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:49.800223+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "So as we speak, the transcript length increases",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:52.802768+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "And, hopefully, it will take some time to",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:55.81786+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "increase the transcript length further.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:34:58.803539+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Up to a point where where",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:35:01.819916+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "this length is enough.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:35:07.823214+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "It seems that the summary calls are not working considering that",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:35:10.824271+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "summary",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:35:58.833564+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "For some reason, the",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:36:04.830443+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "data is not getting updated at all.",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:36:07.816669+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Why could this be happening?",
+      "is_agent": false
+    },
+    {
+      "timestamp": "2025-10-23T23:38:07.851034+05:30",
+      "speaker": "Harsh Bansal",
+      "text": "Mhmm.",
+      "is_agent": false
+    }
+  ],
+  "summary": "The meeting primarily focused on technical issues related to data population and transcript length affecting the generation of summaries. Harsh Bansal noted that data was not populating correctly and that the transcript might not be long enough for a summary to be generated. The discussion revolved around troubleshooting why the data was not updating and how to increase the transcript length to enable summary generation.",
+  "grounded_summary": {
+    "text": "The meeting primarily focused on technical issues related to data population and transcript length affecting the generation of summaries. Harsh Bansal noted that data was not populating correctly and that the transcript might not be long enough for a summary to be generated. The discussion revolved around troubleshooting why the data was not updating and how to increase the transcript length to enable summary generation.",
+    "text_with_citations": "The meeting primarily focused on technical issues related to data population and transcript length affecting the generation of summaries. Harsh Bansal noted that data was not populating correctly and that the transcript might not be long enough for a summary to be generated. The discussion revolved around troubleshooting why the data was not updating and how to increase the transcript length to enable summary generation.",
+    "grounding_metadata": {
+      "web_search_queries": null,
+      "grounding_chunks": null,
+      "grounding_supports": null
+    }
+  },
+  "key_points": [
+    "The core issue persists: data is not populating correctly, hindering summary generation.",
+    "Harsh Bansal reiterated that increased speaking time is intended to lengthen the transcript and facilitate data population and summary creation.",
+    "A critical question remains unanswered: 'Why could this be happening?' regarding the data not updating at all.",
+    "The team is operating under the assumption that summary calls are not functioning as expected, contributing to the problem."
+  ],
+  "grounded_key_points": {
+    "text": "• The core issue persists: data is not populating correctly, hindering summary generation.\n• Harsh Bansal reiterated that increased speaking time is intended to lengthen the transcript and facilitate data population and summary creation.\n• A critical question remains unanswered: 'Why could this be happening?' regarding the data not updating at all.\n• The team is operating under the assumption that summary calls are not functioning as expected, contributing to the problem.",
+    "text_with_citations": "• The core issue persists: data is not populating correctly, hindering summary generation.\n• Harsh Bansal reiterated that increased speaking time is intended to lengthen the transcript and facilitate data population and summary creation.\n• A critical question remains unanswered: 'Why could this be happening?' regarding the data not updating at all.\n• The team is operating under the assumption that summary calls are not functioning as expected, contributing to the problem.",
+    "grounding_metadata": {
+      "web_search_queries": null,
+      "grounding_chunks": null,
+      "grounding_supports": null
+    }
+  },
+  "action_items": [
+    {
+      "id": "",
+      "description": "Investigate the root cause of data not populating properly. This is a critical issue hindering summary generation.",
+      "assignee": "Harsh Bansal",
+      "priority": "high",
+      "type": "investigation",
+      "status": "",
+      "created_at": "0001-01-01T00:00:00Z"
+    },
+    {
+      "id": "",
+      "description": "Determine the exact transcript length threshold required for AI summary generation. This will inform how much data is needed.",
+      "assignee": "Harsh Bansal",
+      "priority": "high",
+      "type": "research",
+      "status": "",
+      "created_at": "0001-01-01T00:00:00Z"
+    },
+    {
+      "id": "",
+      "description": "Verify if the 'summary calls' are indeed not working as suspected by Harsh. This requires technical validation.",
+      "assignee": "Harsh Bansal",
+      "priority": "high",
+      "type": "investigation",
+      "status": "",
+      "created_at": "0001-01-01T00:00:00Z"
+    },
+    {
+      "id": "",
+      "description": "Explore potential reasons why the data is not getting updated at all, as stated at [23:36:04]. This could involve checking data pipelines, API integrations, or database connectivity.",
+      "assignee": "Harsh Bansal",
+      "priority": "high",
+      "type": "investigation",
+      "status": "",
+      "created_at": "0001-01-01T00:00:00Z"
+    },
+    {
+      "id": "",
+      "description": "Develop a strategy to ensure consistent and correct data population for AI summary generation. This might involve refining data collection methods or implementing data validation checks.",
+      "assignee": "Harsh Bansal",
+      "priority": "high",
+      "type": "task",
+      "status": "",
+      "created_at": "0001-01-01T00:00:00Z"
+    },
+    {
+      "id": "",
+      "description": "Research best practices or alternative methods for generating AI summaries from potentially short transcripts if increasing length proves to be an inefficient or impossible solution.",
+      "assignee": "Harsh Bansal",
+      "priority": "medium",
+      "type": "research",
+      "status": "",
+      "created_at": "0001-01-01T00:00:00Z"
+    },
+    {
+      "id": "",
+      "description": "Document the current data population process and identify any bottlenecks or failure points that might be contributing to the observed issues.",
+      "assignee": "Harsh Bansal",
+      "priority": "medium",
+      "type": "investigation",
+      "status": "",
+      "created_at": "0001-01-01T00:00:00Z"
+    },
+    {
+      "id": "",
+      "description": "Set up monitoring to track data population success rates and transcript length over time to proactively identify future issues.",
+      "assignee": "Harsh Bansal",
+      "priority": "medium",
+      "type": "task",
+      "status": "",
+      "created_at": "0001-01-01T00:00:00Z"
+    }
+  ],
+  "topics": [
+    {
+      "topic": "Data Population and Transcript Length for Summaries",
+      "start_time": "23:33:55",
+      "duration_minutes": 2,
+      "summary": "Harsh Bansal is discussing issues with data not populating correctly for summary generation. He suggests that the transcript might not be long enough to trigger the summary generation process. The conversation revolves around troubleshooting why the data isn't updating and the need to increase the transcript length by continuing to speak. Harsh also notes that summary calls seem to be not working and that the data is not getting updated at all, posing a question about the potential reasons for this.",
+      "participants": [
+        "Harsh Bansal"
+      ]
+    }
+  ],
+  "participants": [
+    "Harsh Bansal"
+  ],
+  "duration_minutes": 4.69538084375,
+  "word_count": 146,
+  "sentiment": "negative",
+  "keywords": [
+    "data population",
+    "transcript length",
+    "summary generation",
+    "not populated properly",
+    "not long enough",
+    "not working",
+    "not getting updated"
+  ]
+}

@@ -1,0 +1,70 @@
+# DealSense Backend Configuration
+# This is the single source of truth for all configuration.
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8001
+  read_timeout: 30s
+  write_timeout: 30s
+  cors:
+    allowed_origins:
+      - "http://localhost:3000"
+      - "https://dealsense-ai.vercel.app"
+    allowed_methods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+      - "OPTIONS"
+    allowed_headers:
+      - "*"
+
+# Logging Configuration
+logging:
+  level: "debug"
+  format: "json"
+
+  # Discord Webhook Logging (optional)
+  discord:
+    enabled: false
+    gemini_enabled: false
+    username: "Joinly Bot"
+    # Webhook URLs (leave empty to disable)
+    info_webhook: ""
+    warn_webhook: ""
+    error_webhook: ""
+    debug_webhook: ""
+    gemini_webhook: ""
+
+  # File Logging Configuration
+  file:
+    enabled: true
+    path: "logs/dealsense.log"
+    max_size_mb: 100
+    max_files: 5
+    clear_on_startup: true
+
+# Joinly Core Configuration
+joinly:
+  default_url: "http://localhost:8000/mcp/"
+  default_timeout: 30s
+  max_agents: 10
+  polling:
+    enabled: true
+    interval_seconds: 3
+
+# Google AI Configuration
+google:
+  api_key: "AIzaSyARLeeQHed_z4UeH3k92oJyN65sdn-XZcw"  # Google AI API Key
+
+# Database Configuration
+database:
+  type: "postgres"
+  host: "localhost"
+  port: 5432
+  user: "dealsense"
+  password: "dealsense"
+  dbname: "dealsense"
+  sslmode: "disable"
+  delete_existing_data_on_startup: true
