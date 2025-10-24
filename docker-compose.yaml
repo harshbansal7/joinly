@@ -1,0 +1,80 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: dealsense-postgres
+    environment:
+      POSTGRES_DB: dealsense
+      POSTGRES_USER: dealsense
+      POSTGRES_PASSWORD: dealsense
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - joinly-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dealsense -d dealsense"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Joinly Core MCP Server
+  joinly-core:
+    image: ghcr.io/joinly-ai/joinly:latest
+    container_name: joinly-core
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env  # Uses .env from root directory
+    environment:
+      - PORT=8000
+    volumes:
+      - joinly_data:/app/data
+    networks:
+      - joinly-network
+    restart: unless-stopped
+    
+  # # DealSense Backend
+  # dealsense-backend:
+  #   build:
+  #     context: ./dealsense-manager/backend_v2
+  #     dockerfile: Dockerfile
+  #   container_name: dealsense-backend
+  #   ports:
+  #     - "8001:8001"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     joinly-core:
+  #       condition: service_started
+  #   environment:
+  #     - DATABASE_HOST=postgres
+  #     - DATABASE_PORT=5432
+  #     - DATABASE_NAME=dealsense
+  #     - DATABASE_USER=dealsense_user
+  #     - DATABASE_PASSWORD=dealsense_password
+  #     - DATABASE_SSL_MODE=disable
+  #   networks:
+  #     - joinly-network
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "/app/dealsense-manager", "healthcheck"]
+  #     interval: 60s
+  #     timeout: 10s
+  #     retries: 2
+  #     start_period: 40s
+
+networks:
+  joinly-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  joinly_data:
+    driver: local
+  postgres_data:
+    driver: local
