@@ -28,6 +28,8 @@ import {
   Copy,
   ExternalLink,
   Eye,
+  FileText,
+  TrendingUp,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -38,7 +40,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Layout } from '@/components/layout/layout';
 import { AnalysisSection } from '@/components/analysis/AnalysisSection';
-import type { AnalysisData } from '@/lib/api';
+import { DocumentUpload } from '@/components/documents/DocumentUpload';
+import { ChatbotInterface } from '@/components/chat/ChatbotInterface';
+import { StartupAnalysis } from '@/components/analysis/StartupAnalysis';
+import type { AnalysisData, Document } from '@/lib/api';
+import { documentsApi } from '@/lib/api';
 
 export default function AgentDetailsPage() {
   const params = useParams();
@@ -58,25 +64,37 @@ export default function AgentDetailsPage() {
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
-  const [formattedAnalysis, setFormattedAnalysis] = useState<string>('');
+
+  // Document and advanced features state
+  const [documents, setDocuments] = useState<Document[]>([]);
+
+  // Agent existence state
+  const [agentNotFound, setAgentNotFound] = useState(false);
 
   const agent = agents.find(a => a.id === agentId);
 
   // Load agent data if not found in store (direct URL access)
   const loadAgent = useCallback(async () => {
-    if (agent || isLoadingAgent) return;
-    
+    if (agent || isLoadingAgent || agentNotFound) return;
+
     setIsLoadingAgent(true);
     try {
       // First try to load all agents to populate the store
       const agentsResponse = await agentsApi.list();
       setAgents(agentsResponse.data);
-      
+
       // Check if our agent is now in the list
       const foundAgent = agentsResponse.data.find((a: Agent) => a.id === agentId);
       if (!foundAgent) {
         // If still not found, the agent doesn't exist
+        setAgentNotFound(true);
+        addNotification({
+          type: 'error',
+          title: 'Agent Not Found',
+          message: `Agent with ID ${agentId} does not exist.`,
+        });
         console.error('Agent not found:', agentId);
+        return;
       }
     } catch (error) {
       console.error('Failed to load agent:', error);
@@ -88,7 +106,7 @@ export default function AgentDetailsPage() {
     } finally {
       setIsLoadingAgent(false);
     }
-  }, [agentId, agent, isLoadingAgent, setAgents, addNotification]);
+  }, [agentId, agent, isLoadingAgent, agentNotFound, setAgents, addNotification]);
 
   // Helper function to safely parse URLs
   const getUrlInfo = (url: string) => {
@@ -113,6 +131,8 @@ export default function AgentDetailsPage() {
   });
 
   const loadLogs = useCallback(async () => {
+    if (!agent || agentNotFound) return;
+
     setIsLoadingLogs(true);
     try {
       const response = await agentsApi.getLogs(agentId, 100);
@@ -122,59 +142,63 @@ export default function AgentDetailsPage() {
     } finally {
       setIsLoadingLogs(false);
     }
-  }, [agentId]);
+  }, [agentId, agent, agentNotFound]);
 
   const loadAnalysis = useCallback(async () => {
-    if (agent?.config.conversation_mode !== 'analyst') return;
+    if (!agent || agentNotFound || agent?.config.conversation_mode !== 'analyst') return;
 
     setIsLoadingAnalysis(true);
     try {
       const response = await agentsApi.getAnalysis(agentId);
       setAnalysis(response.data);
-
-      // Also load formatted analysis
-      const formattedResponse = await agentsApi.getFormattedAnalysis(agentId);
-      setFormattedAnalysis(formattedResponse.data);
     } catch (error) {
       console.error('Failed to load analysis:', error);
       setAnalysis(null);
-      setFormattedAnalysis('');
     } finally {
       setIsLoadingAnalysis(false);
     }
-  }, [agentId, agent]);
+  }, [agentId, agent, agentNotFound]);
 
   const refreshAnalysis = useCallback(async () => {
-    if (agent?.config.conversation_mode !== 'analyst') return;
+    if (!agent || agentNotFound || agent?.config.conversation_mode !== 'analyst') return;
 
     setIsRefreshingAnalysis(true);
     try {
       const response = await agentsApi.getAnalysis(agentId);
       setAnalysis(response.data);
-
-      // Also load formatted analysis
-      const formattedResponse = await agentsApi.getFormattedAnalysis(agentId);
-      setFormattedAnalysis(formattedResponse.data);
     } catch (error) {
       console.error('Failed to refresh analysis:', error);
       // Don't clear analysis on refresh error, keep existing data
     } finally {
       setIsRefreshingAnalysis(false);
     }
-  }, [agentId, agent]);
+  }, [agentId, agent, agentNotFound]);
 
-  const downloadAnalysis = () => {
-    if (!formattedAnalysis) return;
+  const downloadAnalysis = async () => {
+    if (!agent || agentNotFound || agent?.config.conversation_mode !== 'analyst') return;
 
-    const blob = new Blob([formattedAnalysis], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `meeting-analysis-${agentId}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      // Load formatted analysis on-demand for download
+      const formattedResponse = await agentsApi.getFormattedAnalysis(agentId);
+      const formattedData = formattedResponse.data;
+
+      const blob = new Blob([formattedData], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `meeting-analysis-${agentId}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download analysis:', error);
+      addNotification({
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Could not download analysis. Please try again.',
+      });
+    }
   };
 
   const formatLogEntry = (log: { timestamp: string; level: string; message: string }): string => {
@@ -186,12 +210,24 @@ export default function AgentDetailsPage() {
     loadAgent();
   }, [loadAgent]);
 
+  const loadDocuments = useCallback(async () => {
+    if (!agentId || !agent || agentNotFound) return;
+
+    try {
+      const response = await documentsApi.list(agentId);
+      setDocuments(response.data);
+    } catch (error) {
+      console.error('Failed to load documents:', error);
+    }
+  }, [agentId, agent, agentNotFound]);
+
   useEffect(() => {
     loadLogs();
+    loadDocuments();
     if (agent?.config.conversation_mode === 'analyst') {
       loadAnalysis();
     }
-  }, [loadLogs, loadAnalysis, agent]);
+  }, [loadLogs, loadDocuments, loadAnalysis, agent]);
 
   // Auto-refresh analysis data every 5 seconds when enabled
   useEffect(() => {
@@ -403,7 +439,7 @@ export default function AgentDetailsPage() {
     );
   }
 
-  if (!agent && !isLoadingAgent) {
+  if (agentNotFound || (!agent && !isLoadingAgent)) {
     return (
       <Layout title="Agent Not Found">
         <div className="flex items-center justify-center min-h-96">
@@ -667,9 +703,9 @@ export default function AgentDetailsPage() {
           </CardContent>
         </Card>
 
-        {/* Logs, Status, and Analysis */}
+        {/* Logs, Status, Analysis, Documents, Chat, and Startup Analysis */}
         <Tabs defaultValue={agent.config.conversation_mode === 'analyst' ? 'analysis' : 'logs'} className="w-full">
-          <TabsList className={`grid w-full ${agent.config.conversation_mode === 'analyst' ? 'grid-cols-3' : 'grid-cols-2'}`}>
+          <TabsList className={`grid w-full ${agent.config.conversation_mode === 'analyst' ? 'grid-cols-6' : 'grid-cols-5'}`}>
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Logs
@@ -684,6 +720,18 @@ export default function AgentDetailsPage() {
                 Analysis
               </TabsTrigger>
             )}
+            <TabsTrigger value="documents" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Documents
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Chat
+            </TabsTrigger>
+            <TabsTrigger value="startup" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Startup
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="logs" className="space-y-4">
@@ -995,7 +1043,7 @@ export default function AgentDetailsPage() {
                         variant="outline"
                         size="sm"
                         onClick={downloadAnalysis}
-                        disabled={!formattedAnalysis || isLoadingAnalysis}
+                        disabled={isLoadingAnalysis || !agent || agent.config.conversation_mode !== 'analyst'}
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Download
@@ -1049,6 +1097,31 @@ export default function AgentDetailsPage() {
               </Card>
             </TabsContent>
           )}
+
+          {/* Documents Tab */}
+          <TabsContent value="documents" className="space-y-4">
+            <DocumentUpload 
+              agentId={agentId}
+              documents={documents}
+              onDocumentsChange={loadDocuments}
+            />
+          </TabsContent>
+
+          {/* Chat Tab */}
+          <TabsContent value="chat" className="space-y-4">
+            <div className="h-[600px]">
+              <ChatbotInterface agentId={agentId} />
+            </div>
+          </TabsContent>
+
+          {/* Startup Analysis Tab */}
+          <TabsContent value="startup" className="space-y-4">
+            <StartupAnalysis 
+              agentId={agentId}
+              documents={documents}
+              onAnalyze={loadDocuments}
+            />
+          </TabsContent>
         </Tabs>
       </div>
     </Layout>

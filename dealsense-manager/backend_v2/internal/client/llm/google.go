@@ -239,7 +239,7 @@ func (p *GoogleProvider) CallWithGrounding(prompt string) (*GroundedResponse, er
 // IsAvailable checks if Google API credentials are available
 func (p *GoogleProvider) IsAvailable() bool {
 	googleConfig := config.GetGoogleConfig()
-	return googleConfig.APIKey != "" || googleConfig.ApplicationCredentialsFile != ""
+	return googleConfig.APIKey != ""
 }
 
 // makeHTTPCallWithLogging is a helper function to make HTTP calls to the Google AI API with logging

@@ -12,8 +12,10 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"joinly-manager/internal/api"
+	"joinly-manager/internal/client/llm"
 	"joinly-manager/internal/config"
 	"joinly-manager/internal/database"
+	"joinly-manager/internal/document"
 	"joinly-manager/internal/services"
 )
 
@@ -77,8 +79,38 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Setup router
-	router := api.SetupRouter(cfg, agentManager, db)
+	// Initialize document services (optional - will be nil if Google Cloud not configured)
+	var documentHandler *api.DocumentHandler
+
+	// Initialize LLM provider for document analysis and chat
+	llmProvider, err := llm.GetProvider("google", "gemini-2.5-flash-lite")
+	groundingCapableProvider, ok := llmProvider.(llm.GroundingCapableProvider)
+	if !ok {
+		logrus.Fatalf("LLM provider does not support grounding: %v", err)
+		os.Exit(1)
+	}
+	if err != nil {
+		logrus.Warnf("Failed to initialize LLM provider: %v", err)
+		logrus.Info("Document services will be disabled")
+	} else {
+		// Initialize document services
+		docService, docErr := initializeDocumentServices(cfg, db)
+		if docErr != nil {
+			logrus.Warnf("Failed to initialize document services: %v", err)
+			logrus.Info("Document services will be disabled")
+		} else {
+			// Initialize chatbot and startup analyzer
+			chatbotService := document.NewChatbotService(db, docService, groundingCapableProvider)
+			startupAnalyzer := document.NewStartupAnalyzer(db, docService, groundingCapableProvider)
+
+			// Create document handler
+			documentHandler = api.NewDocumentHandler(docService, chatbotService, startupAnalyzer)
+			logrus.Info("Document services initialized successfully")
+		}
+	}
+
+	// Setup router with document handler (if available)
+	router := api.SetupRouter(cfg, agentManager, db, documentHandler)
 
 	// Create HTTP server
 	srv := &http.Server{
@@ -125,4 +157,72 @@ func main() {
 	}
 
 	logrus.Info("Server exited")
+}
+
+// initializeDocumentServices initializes all Google Cloud document services
+func initializeDocumentServices(cfg *config.Config, db *database.Database) (*document.Service, error) {
+	// Check if Google Cloud configuration is available
+	if cfg.Google.ProjectID == "" {
+		return nil, fmt.Errorf("Google Cloud project ID not configured")
+	}
+
+	// Initialize storage client
+	storageConfig := document.StorageConfig{
+		BucketName:      cfg.Google.Storage.BucketName,
+		UseDefaultCreds: cfg.Google.Storage.UseDefaultCredentials,
+		CredentialsJSON: cfg.Google.Storage.CredentialsJSON,
+	}
+
+	storageClient, err := document.NewStorageClient(storageConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize storage client: %w", err)
+	}
+
+	// Initialize document processor
+	processorConfig := document.ProcessorConfig{
+		ProjectID:       cfg.Google.ProjectID,
+		Location:        cfg.Google.DocumentAI.Location,
+		ProcessorID:     cfg.Google.DocumentAI.ProcessorID,
+		CredentialsJSON: cfg.Google.DocumentAI.CredentialsJSON,
+		UseDefaultCreds: cfg.Google.DocumentAI.UseDefaultCredentials,
+	}
+
+	docProcessor, err := document.NewDocumentProcessor(processorConfig)
+	if err != nil {
+		storageClient.Close()
+		return nil, fmt.Errorf("failed to initialize document processor: %w", err)
+	}
+
+	// Initialize embedding service
+	embeddingConfig := document.EmbeddingConfig{
+		ProjectID:       cfg.Google.ProjectID,
+		Location:        cfg.Google.VertexAI.Location,
+		Model:           cfg.Google.VertexAI.EmbeddingModel,
+		CredentialsJSON: cfg.Google.VertexAI.CredentialsJSON,
+		UseDefaultCreds: cfg.Google.VertexAI.UseDefaultCredentials,
+	}
+
+	embeddingService, err := document.NewEmbeddingService(embeddingConfig)
+	if err != nil {
+		storageClient.Close()
+		docProcessor.Close()
+		return nil, fmt.Errorf("failed to initialize embedding service: %w", err)
+	}
+
+	// Initialize document service
+	docService, err := document.NewService(db, document.ServiceConfig{
+		Storage:   storageConfig,
+		Processor: processorConfig,
+		Embedding: embeddingConfig,
+	})
+
+	if err != nil {
+		storageClient.Close()
+		docProcessor.Close()
+		embeddingService.Close()
+		return nil, fmt.Errorf("failed to initialize document service: %w", err)
+	}
+
+	logrus.Info("Document services initialized successfully")
+	return docService, nil
 }

@@ -12,7 +12,8 @@ import (
 )
 
 // SetupRouter sets up the Gin router with all routes
-func SetupRouter(cfg *config.Config, agentManager *services.AgentManager, db *database.Database) *gin.Engine {
+// documentHandler parameter is optional for backwards compatibility
+func SetupRouter(cfg *config.Config, agentManager *services.AgentManager, db *database.Database, documentHandler ...*DocumentHandler) *gin.Engine {
 	// Set Gin mode
 	if cfg.Logging.Level == "debug" {
 		gin.SetMode(gin.DebugMode)
@@ -61,6 +62,32 @@ func SetupRouter(cfg *config.Config, agentManager *services.AgentManager, db *da
 
 	// Additional utility routes
 	router.GET("/usage", handler.GetUsageStats)
+
+	// Document, Chatbot, and Analysis routes (if document handler is provided)
+	if len(documentHandler) > 0 && documentHandler[0] != nil {
+		docHandler := documentHandler[0]
+
+		// Document management routes
+		agents.POST("/:agent_id/documents", docHandler.UploadDocument)
+		agents.GET("/:agent_id/documents", docHandler.ListDocuments)
+		agents.POST("/:agent_id/documents/search", docHandler.SearchDocuments)
+
+		// Chatbot routes
+		agents.POST("/:agent_id/chat", docHandler.ChatQuery)
+		agents.GET("/:agent_id/chat/:session_id", docHandler.GetChatHistory)
+
+		// Startup analysis routes
+		agents.POST("/:agent_id/analyze", docHandler.AnalyzeStartup)
+		agents.GET("/:agent_id/analysis/startup", docHandler.GetStartupAnalysis)
+
+		// Document-specific routes (not agent-scoped)
+		documents := router.Group("/documents")
+		{
+			documents.GET("/:document_id", docHandler.GetDocument)
+			documents.DELETE("/:document_id", docHandler.DeleteDocument)
+			documents.GET("/:document_id/download", docHandler.GetDocumentDownloadURL)
+		}
+	}
 
 	return router
 }
